@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-reset-v6-3-pwa-cache-v1';
+const CACHE_NAME = 'daily-reset-v6-4-recurring-pwa-cache-v1';
 const APP_SHELL = [
   './',
   './index.html',
