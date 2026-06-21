@@ -9,533 +9,212 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Daily Reset" />
-
   <title>The Daily Reset</title>
   <style>
-    :root{
-      --blue:#0076B6;
-      --blue2:#31a7e0;
-      --bg:#eef8ff;
-      --panel:#ffffff;
-      --soft:#dff2fb;
-      --ink:#102638;
-      --muted:#5b7284;
-      --line:rgba(0,118,182,.18);
-      --green:#3a9d67;
-      --amber:#b7791f;
-      --red:#c84d4d;
-      --shadow:0 14px 38px rgba(0,118,182,.14);
-      --radius:22px;
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      min-height:100vh;
-      color:var(--ink);
-      background:
-        radial-gradient(circle at 12% 4%, rgba(49,167,224,.22), transparent 28%),
-        radial-gradient(circle at 92% 9%, rgba(0,118,182,.16), transparent 30%),
-        linear-gradient(180deg,#f7fcff 0%,#eef8ff 55%,#e2f2fb 100%);
-    }
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer;border:0}
-    .shell{width:min(1120px,100%);margin:0 auto;padding:10px 12px 92px}
-
-    /* 2-second loading screen */
-    #splash{
-      position:fixed;
-      inset:0;
-      z-index:9999;
-      display:grid;
-      place-items:center;
-      background:#000;
-      color:white;
-      transition:opacity .35s ease, visibility .35s ease;
-    }
-    #splash.hide{opacity:0;visibility:hidden}
-    .splash-inner{text-align:center;display:grid;gap:14px;place-items:center}
-    .splash-logo{
-      width:142px;
-      height:142px;
-      filter:drop-shadow(0 0 24px rgba(0,118,182,.9)) drop-shadow(0 0 54px rgba(49,167,224,.38));
-    }
-    .logo-arrow{transform-origin:50px 50px}
-    #splash .logo-arrow{animation:spin 1.05s linear infinite}
-    @keyframes spin{to{transform:rotate(-360deg)}}
-    .splash-title{font-weight:950;font-size:1.45rem;letter-spacing:-.03em}
-    .splash-subtitle{font-size:.9rem;color:rgba(255,255,255,.68);font-weight:750}
-
-    header.app-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin:0 0 10px;
-      padding:10px 12px;
-      border:1px solid var(--line);
-      border-radius:22px;
-      background:rgba(255,255,255,.88);
-      box-shadow:0 8px 22px rgba(0,118,182,.08);
-      backdrop-filter:blur(14px);
-    }
-    .top-left{display:flex;align-items:center;gap:10px;min-width:0}
-    .menu-btn,.gear-btn{
-      width:42px;height:42px;border-radius:15px;
-      display:grid;place-items:center;
-      background:#edf6fb;color:var(--ink);
-      border:1px solid var(--line);
-      font-weight:950;
-      font-size:1.15rem;
-    }
-    .top-logo{width:42px;height:42px;flex:0 0 auto;filter:drop-shadow(0 5px 10px rgba(0,118,182,.18))}
-    .top-title{font-size:1.2rem;font-weight:950;letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-    nav{position:sticky;top:0;z-index:20;margin:8px 0 12px;padding:8px 0;display:flex;gap:8px;overflow:auto;background:linear-gradient(180deg,rgba(238,248,255,.97),rgba(238,248,255,.82));backdrop-filter:blur(14px);scrollbar-width:none}
-    nav::-webkit-scrollbar{display:none}
-    .tab{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.84);padding:10px 14px;font-weight:900;color:var(--ink);box-shadow:0 7px 18px rgba(0,118,182,.06)}
-    .tab.active{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border-color:transparent}
-    .screen{display:none}.screen.active{display:block}
-    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}
-    .card{grid-column:span 12;border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.93);box-shadow:0 10px 28px rgba(0,118,182,.08);padding:15px}
-    @media(min-width:760px){.span-3{grid-column:span 3}.span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}}
-    h2{margin:0 0 10px;font-size:1.18rem;letter-spacing:-.02em}.muted{color:var(--muted)}.small{font-size:.84rem}.strong{font-weight:900}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.between{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .metric{font-size:2.25rem;line-height:1;font-weight:950;letter-spacing:-.055em}.metric-label{font-size:.82rem;color:var(--muted);font-weight:800}
-    .btn{border-radius:15px;padding:10px 12px;background:#edf6fb;color:var(--ink);font-weight:850;border:1px solid var(--line)}
-    .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border-color:transparent}.btn.good{background:#e9f8ef;color:#14623a;border-color:rgba(58,157,103,.22)}.btn.warn{background:#fff5df;color:#7b4b00;border-color:rgba(183,121,31,.24)}.btn.danger{background:#fff0f0;color:#9a2f2f;border-color:rgba(200,77,77,.2)}.btn.ghost{background:transparent}
-    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:15px;background:white;color:var(--ink);padding:10px 11px;outline:none}textarea{min-height:86px;resize:vertical}label{display:block;margin:0 0 6px;color:var(--muted);font-size:.82rem;font-weight:850}
-    .task-list{display:grid;gap:10px}.task{border:1px solid var(--line);border-radius:18px;background:#fff;padding:12px;display:grid;gap:9px}.task.done{background:#f0fbf4;border-color:rgba(58,157,103,.28)}.task.skipped{background:#fff9ec;border-color:rgba(183,121,31,.26)}.task-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.task-title{font-weight:950}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:.76rem;font-weight:900;border:1px solid var(--line);background:#f7fcff;color:var(--muted)}.badge.req{background:#eaf6ff;color:#005f94}.badge.done{background:#e9f8ef;color:#14623a}.badge.skip{background:#fff5df;color:#7b4b00}.badge.overdue{background:#fff0f0;color:#9a2f2f}.badge.now{background:#eaf6ff;color:#005f94}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions .btn{padding:8px 10px;border-radius:13px;font-size:.9rem}
-    .progress{height:12px;background:#e5f2f9;border-radius:999px;overflow:hidden;border:1px solid var(--line)}.bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue2));width:0%}
-    .pill-row{display:flex;gap:8px;overflow:auto;padding-bottom:3px;scrollbar-width:none}.pill-row::-webkit-scrollbar{display:none}.pill{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 10px;font-weight:850;color:var(--muted)}.pill.active{background:var(--blue);color:white;border-color:var(--blue)}
-    .empty{text-align:center;color:var(--muted);padding:18px;border:1px dashed var(--line);border-radius:18px;background:rgba(255,255,255,.6)}
-    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(25px);opacity:0;background:#0f2740;color:white;border-radius:999px;padding:11px 14px;font-weight:850;box-shadow:var(--shadow);z-index:50;transition:.22s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .table{width:100%;border-collapse:separate;border-spacing:0 8px}.table th{text-align:left;color:var(--muted);font-size:.78rem}.table td,.table th{padding:6px}.table tr td{background:#f7fcff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.table tr td:first-child{border-left:1px solid var(--line);border-radius:12px 0 0 12px}.table tr td:last-child{border-right:1px solid var(--line);border-radius:0 12px 12px 0}
-    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef7fc;border:1px solid var(--line);border-radius:8px;padding:2px 6px}.hidden{display:none!important}
+    :root{--blue:#0076B6;--blue2:#31a7e0;--bg:#eef8ff;--panel:#fff;--ink:#102638;--muted:#5b7284;--line:rgba(0,118,182,.18);--green:#3a9d67;--amber:#b7791f;--red:#c84d4d;--shadow:0 14px 38px rgba(0,118,182,.14);--radius:22px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(circle at 12% 4%,rgba(49,167,224,.22),transparent 28%),radial-gradient(circle at 92% 9%,rgba(0,118,182,.16),transparent 30%),linear-gradient(180deg,#f7fcff 0%,#eef8ff 55%,#e2f2fb 100%)}
+    button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.shell{width:min(1120px,100%);margin:0 auto;padding:10px 12px 92px}
+    #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#000;color:#fff;transition:opacity .35s ease,visibility .35s ease}#splash.hide{opacity:0;visibility:hidden}.splash-inner{text-align:center;display:grid;gap:14px;place-items:center}.splash-logo{width:142px;height:142px;filter:drop-shadow(0 0 24px rgba(0,118,182,.9))}.logo-arrow{transform-origin:50px 50px}#splash .logo-arrow{animation:spin 1.05s linear infinite}@keyframes spin{to{transform:rotate(-360deg)}}.splash-title{font-weight:950;font-size:1.45rem;letter-spacing:-.03em}.splash-subtitle{font-size:.9rem;color:rgba(255,255,255,.68);font-weight:750}
+    header.app-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.88);box-shadow:0 8px 22px rgba(0,118,182,.08);backdrop-filter:blur(14px)}.top-left{display:flex;align-items:center;gap:10px;min-width:0}.menu-btn,.gear-btn{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;background:#edf6fb;color:var(--ink);border:1px solid var(--line);font-weight:950;font-size:1.15rem}.top-logo{width:42px;height:42px;flex:0 0 auto;filter:drop-shadow(0 5px 10px rgba(0,118,182,.18))}.top-title{font-size:1.2rem;font-weight:950;letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    nav{position:sticky;top:0;z-index:20;margin:8px 0 12px;padding:8px 0;display:flex;gap:8px;overflow:auto;background:linear-gradient(180deg,rgba(238,248,255,.97),rgba(238,248,255,.82));backdrop-filter:blur(14px);scrollbar-width:none}nav::-webkit-scrollbar{display:none}.tab{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.84);padding:10px 14px;font-weight:900;color:var(--ink);box-shadow:0 7px 18px rgba(0,118,182,.06)}.tab.active{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border-color:transparent}
+    .screen{display:none}.screen.active{display:block}.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}.card{grid-column:span 12;border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.93);box-shadow:0 10px 28px rgba(0,118,182,.08);padding:15px}@media(min-width:760px){.span-3{grid-column:span 3}.span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}}
+    h2{margin:0 0 10px;font-size:1.18rem;letter-spacing:-.02em}.muted{color:var(--muted)}.small{font-size:.84rem}.strong{font-weight:900}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.between{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.metric{font-size:2.25rem;line-height:1;font-weight:950;letter-spacing:-.055em}.metric-label{font-size:.82rem;color:var(--muted);font-weight:800}
+    .btn{border-radius:15px;padding:10px 12px;background:#edf6fb;color:var(--ink);font-weight:850;border:1px solid var(--line)}.btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border-color:transparent}.btn.good{background:#e9f8ef;color:#14623a;border-color:rgba(58,157,103,.22)}.btn.warn{background:#fff5df;color:#7b4b00;border-color:rgba(183,121,31,.24)}.btn.danger{background:#fff0f0;color:#9a2f2f;border-color:rgba(200,77,77,.2)}.btn.ghost{background:transparent}.btn[disabled]{opacity:.5;cursor:not-allowed}
+    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:15px;background:#fff;color:var(--ink);padding:10px 11px;outline:none}textarea{min-height:86px;resize:vertical}label{display:block;margin:0 0 6px;color:var(--muted);font-size:.82rem;font-weight:850}
+    .task-list{display:grid;gap:10px}.task{border:1px solid var(--line);border-radius:18px;background:#fff;padding:12px;display:grid;gap:9px}.task.done{background:#f0fbf4;border-color:rgba(58,157,103,.28)}.task.skipped{background:#fff9ec;border-color:rgba(183,121,31,.26)}.task.final{border-color:rgba(200,77,77,.45);box-shadow:0 0 0 3px rgba(200,77,77,.08)}.task-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.task-title{font-weight:950}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:.76rem;font-weight:900;border:1px solid var(--line);background:#f7fcff;color:var(--muted)}.badge.req{background:#eaf6ff;color:#005f94}.badge.done{background:#e9f8ef;color:#14623a}.badge.skip{background:#fff5df;color:#7b4b00}.badge.overdue{background:#fff0f0;color:#9a2f2f}.badge.final{background:#fff0f0;color:#9a2f2f;border-color:rgba(200,77,77,.25)}.badge.now{background:#eaf6ff;color:#005f94}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions .btn{padding:8px 10px;border-radius:13px;font-size:.9rem}.progress{height:12px;background:#e5f2f9;border-radius:999px;overflow:hidden;border:1px solid var(--line)}.bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue2));width:0%}.pill-row{display:flex;gap:8px;overflow:auto;padding-bottom:3px;scrollbar-width:none}.pill-row::-webkit-scrollbar{display:none}.pill{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-weight:850;color:var(--muted)}.pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}.empty{text-align:center;color:var(--muted);padding:18px;border:1px dashed var(--line);border-radius:18px;background:rgba(255,255,255,.6)}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(25px);opacity:0;background:#0f2740;color:#fff;border-radius:999px;padding:11px 14px;font-weight:850;box-shadow:var(--shadow);z-index:50;transition:.22s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.table{width:100%;border-collapse:separate;border-spacing:0 8px}.table th{text-align:left;color:var(--muted);font-size:.78rem}.table td,.table th{padding:6px}.table tr td{background:#f7fcff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.table tr td:first-child{border-left:1px solid var(--line);border-radius:12px 0 0 12px}.table tr td:last-child{border-right:1px solid var(--line);border-radius:0 12px 12px 0}.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef7fc;border:1px solid var(--line);border-radius:8px;padding:2px 6px}.hidden{display:none!important}
   </style>
 </head>
 <body>
-  <div id="splash" aria-label="Loading Daily Reset">
-    <div class="splash-inner">
-      <svg class="splash-logo" viewBox="0 0 100 100" role="img" aria-label="Daily Reset sunrise logo">
-        <defs>
-          <linearGradient id="blueGradSplash" x1="20" y1="15" x2="80" y2="85">
-            <stop offset="0" stop-color="#32B4F0"/>
-            <stop offset="1" stop-color="#0076B6"/>
-          </linearGradient>
-          <radialGradient id="sunGradSplash" cx="50%" cy="45%" r="60%">
-            <stop offset="0" stop-color="#FFE98A"/>
-            <stop offset="1" stop-color="#FDB72F"/>
-          </radialGradient>
-        </defs>
-        <circle cx="50" cy="50" r="37" fill="#EAF7FF" opacity=".96"/>
-        <g class="logo-sun">
-          <path d="M30 61 Q50 42 70 61 Z" fill="url(#sunGradSplash)"/>
-          <path d="M27 65 Q50 58 73 65" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-          <path d="M34 72 Q50 67 66 72" fill="none" stroke="#8DDAFF" stroke-width="4" stroke-linecap="round"/>
-          <g stroke="#FDB72F" stroke-width="4" stroke-linecap="round">
-            <path d="M50 33 L50 25"/><path d="M38 39 L32 33"/><path d="M62 39 L68 33"/><path d="M30 51 L22 48"/><path d="M70 51 L78 48"/>
-          </g>
-        </g>
-        <g class="logo-arrow">
-          <path d="M50 14 A36 36 0 1 0 81 68"
-                fill="none"
-                stroke="url(#blueGradSplash)"
-                stroke-width="10"
-                stroke-linecap="round"/>
-          <path d="M84 70 L94 51 L72 58 Z" fill="#1595D6"/>
-        </g>
-      </svg>
-      <div>
-        <div class="splash-title">Daily Reset</div>
-        <div class="splash-subtitle">Starting your day...</div>
-      </div>
-    </div>
-  </div>
-
+  <div id="splash" aria-label="Loading Daily Reset"><div class="splash-inner">
+    <svg class="splash-logo" viewBox="0 0 100 100" role="img" aria-label="Daily Reset sunrise logo"><defs><linearGradient id="blueGradSplash" x1="20" y1="15" x2="80" y2="85"><stop offset="0" stop-color="#32B4F0"/><stop offset="1" stop-color="#0076B6"/></linearGradient><radialGradient id="sunGradSplash" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#FFE98A"/><stop offset="1" stop-color="#FDB72F"/></radialGradient></defs><circle cx="50" cy="50" r="37" fill="#EAF7FF" opacity=".96"/><path d="M30 61 Q50 42 70 61 Z" fill="url(#sunGradSplash)"/><path d="M27 65 Q50 58 73 65" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/><path d="M34 72 Q50 67 66 72" fill="none" stroke="#8DDAFF" stroke-width="4" stroke-linecap="round"/><g class="logo-arrow"><path d="M50 14 A36 36 0 1 0 81 68" fill="none" stroke="url(#blueGradSplash)" stroke-width="10" stroke-linecap="round"/><path d="M84 70 L94 51 L72 58 Z" fill="#1595D6"/></g></svg>
+    <div><div class="splash-title">Daily Reset</div><div class="splash-subtitle">Starting your day...</div></div>
+  </div></div>
   <div class="shell">
-    <header class="app-top">
-      <div class="top-left">
-        <button class="menu-btn" aria-label="Menu">☰</button>
-        <svg class="top-logo" viewBox="0 0 100 100" role="img" aria-label="Daily Reset logo">
-          <defs>
-            <linearGradient id="blueGradTop" x1="20" y1="15" x2="80" y2="85">
-              <stop offset="0" stop-color="#32B4F0"/>
-              <stop offset="1" stop-color="#0076B6"/>
-            </linearGradient>
-            <radialGradient id="sunGradTop" cx="50%" cy="45%" r="60%">
-              <stop offset="0" stop-color="#FFE98A"/>
-              <stop offset="1" stop-color="#FDB72F"/>
-            </radialGradient>
-          </defs>
-          <circle cx="50" cy="50" r="37" fill="#EAF7FF"/>
-          <path d="M30 61 Q50 42 70 61 Z" fill="url(#sunGradTop)"/>
-          <path d="M27 65 Q50 58 73 65" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-          <path d="M34 72 Q50 67 66 72" fill="none" stroke="#8DDAFF" stroke-width="4" stroke-linecap="round"/>
-          <g stroke="#FDB72F" stroke-width="4" stroke-linecap="round">
-            <path d="M50 33 L50 25"/><path d="M38 39 L32 33"/><path d="M62 39 L68 33"/><path d="M30 51 L22 48"/><path d="M70 51 L78 48"/>
-          </g>
-          <path d="M50 14 A36 36 0 1 0 81 68"
-                fill="none"
-                stroke="url(#blueGradTop)"
-                stroke-width="10"
-                stroke-linecap="round"/>
-          <path d="M84 70 L94 51 L72 58 Z" fill="#1595D6"/>
-        </svg>
-        <div class="top-title">Daily Reset</div>
-      </div>
-      <button class="gear-btn" id="openSettings" aria-label="Settings">⚙</button>
-    </header>
-
-    <nav aria-label="App sections">
-      <button class="tab active" data-tab="today">Today</button>
-      <button class="tab" data-tab="tasks">Tasks</button>
-      <button class="tab" data-tab="plan">Plan</button>
-      <button class="tab" data-tab="reports">Reports</button>
-      <button class="tab" data-tab="backup">Backup</button>
-      <button class="tab hidden" data-tab="settings">Settings</button>
-    </nav>
-
+    <header class="app-top"><div class="top-left"><button class="menu-btn" aria-label="Menu">☰</button><svg class="top-logo" viewBox="0 0 100 100" role="img" aria-label="Daily Reset logo"><circle cx="50" cy="50" r="37" fill="#EAF7FF"/><path d="M30 61 Q50 42 70 61 Z" fill="#FDB72F"/><path d="M50 14 A36 36 0 1 0 81 68" fill="none" stroke="#0076B6" stroke-width="10" stroke-linecap="round"/><path d="M84 70 L94 51 L72 58 Z" fill="#1595D6"/></svg><div class="top-title">Daily Reset</div></div><button class="gear-btn" id="openSettings" aria-label="Settings">⚙</button></header>
+    <nav aria-label="App sections"><button class="tab active" data-tab="today">Today</button><button class="tab" data-tab="tasks">Tasks</button><button class="tab" data-tab="plan">Plan</button><button class="tab" data-tab="reports">Reports</button><button class="tab" data-tab="backup">Backup</button><button class="tab hidden" data-tab="settings">Settings</button></nav>
     <main>
-      <section class="screen active" id="screen-today">
-        <div class="grid">
-          <div class="card span-4">
-            <div class="between"><h2>Today</h2><input style="max-width:170px" id="datePick" type="date"></div>
-            <div class="metric" id="scoreMetric">0</div><div class="metric-label">reset points today</div>
-            <div class="progress" style="margin:12px 0"><div class="bar" id="progressBar"></div></div>
-            <div class="row small muted"><span id="doneCount">0 done</span><span>•</span><span id="requiredCount">0 required left</span></div>
+      <section class="screen active" id="screen-today"><div class="grid">
+        <div class="card span-4"><div class="between"><h2>Today</h2><input style="max-width:170px" id="datePick" type="date"></div><div class="metric" id="scoreMetric">0</div><div class="metric-label">reset points today</div><div class="progress" style="margin:12px 0"><div class="bar" id="progressBar"></div></div><div class="row small muted"><span id="doneCount">0 done</span><span>•</span><span id="requiredCount">0 required left</span></div></div>
+        <div class="card span-4"><h2>Day Mode</h2><div class="pill-row" id="modePills"></div><p class="small muted" id="modeHelp" style="margin:10px 0 0">Normal mode counts the full reset. Survival mode reduces pressure without deleting the day.</p></div>
+        <div class="card span-4"><h2>Fast Add</h2><div class="row"><button class="btn primary" data-quick="note">Add note</button><button class="btn good" data-quick="task">Add task</button><button class="btn warn" id="survivalBtn">Survival reset</button></div><p class="small muted">Use quick actions when the day is moving faster than the checklist.</p></div>
+        <div class="card span-8"><div class="between"><h2>Due Now</h2><span class="badge now" id="nowLabel">Ready</span></div><div class="task-list" id="dueNow"></div></div>
+        <div class="card span-4"><h2>Daily Briefing</h2><textarea id="briefing" placeholder="What matters today? Appointments, energy level, family rhythm, garden, work, or house focus."></textarea><button class="btn primary" id="saveBriefing" style="margin-top:8px">Save briefing</button></div>
+        <div class="card"><div class="between"><h2>All Resets</h2><div class="pill-row" id="periodPills"></div></div><div class="task-list" id="allTasks"></div></div>
+      </div></section>
+
+      <section class="screen" id="screen-tasks"><div class="grid">
+        <div class="card span-5"><h2>Add / Edit Task</h2><input id="editId" type="hidden">
+          <label>Task title</label><input id="taskTitle" placeholder="Example: Pay rent">
+          <div class="grid" style="margin-top:10px">
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Period</label><select id="taskPeriod"><option>Morning</option><option>Midday</option><option>Afternoon</option><option>Evening</option><option>Night</option></select></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Target time</label><input id="taskTime" type="time"></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Category</label><select id="taskCategory"><option>Hygiene</option><option>Food</option><option>House</option><option>Family</option><option>Dog</option><option>Projects</option><option>Faith</option><option>Health</option><option>Money</option><option>Birthdays</option></select></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Priority</label><select id="taskPriority"><option>Required</option><option>Should</option><option>Nice</option></select></div>
           </div>
-          <div class="card span-4">
-            <h2>Day Mode</h2>
-            <div class="pill-row" id="modePills"></div>
-            <p class="small muted" id="modeHelp" style="margin:10px 0 0">Normal mode counts the full reset. Survival mode reduces pressure without deleting the day.</p>
+          <h2 style="margin-top:14px">Repeat</h2>
+          <div class="grid">
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Repeat type</label><select id="taskRecurrence"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Weekly day</label><select id="taskWeekday"><option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option></select></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Monthly day</label><select id="taskMonthDay"><option value="1">1st</option><option value="5">5th</option><option value="10">10th</option><option value="15">15th</option><option value="20">20th</option><option value="25">25th</option><option value="last">Last day</option></select></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Hard deadline day</label><input id="taskHardDeadline" type="number" min="1" max="31" placeholder="Optional"></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Yearly month</label><select id="taskYearMonth"></select></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Yearly day</label><input id="taskYearDay" type="number" min="1" max="31" value="1"></div>
+            <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Reminder days before</label><input id="taskReminderDays" type="number" min="0" max="60" value="0"></div>
           </div>
-          <div class="card span-4">
-            <h2>Fast Add</h2>
-            <div class="row">
-              <button class="btn primary" data-quick="note">Add note</button>
-              <button class="btn good" data-quick="task">Add task</button>
-              <button class="btn warn" id="survivalBtn">Survival reset</button>
-            </div>
-            <p class="small muted">Use quick actions when the day is moving faster than the checklist.</p>
-          </div>
-          <div class="card span-8">
-            <div class="between"><h2>Due Now</h2><span class="badge now" id="nowLabel">Ready</span></div>
-            <div class="task-list" id="dueNow"></div>
-          </div>
-          <div class="card span-4">
-            <h2>Daily Briefing</h2>
-            <textarea id="briefing" placeholder="What matters today? Appointments, energy level, family rhythm, garden, work, or house focus."></textarea>
-            <button class="btn primary" id="saveBriefing" style="margin-top:8px">Save briefing</button>
-          </div>
-          <div class="card">
-            <div class="between"><h2>All Resets</h2><div class="pill-row" id="periodPills"></div></div>
-            <div class="task-list" id="allTasks"></div>
-          </div>
+          <label style="margin-top:10px">Subtasks, one per line</label><textarea id="taskSubtasks" placeholder="Optional small steps"></textarea>
+          <div class="row" style="margin-top:10px"><button class="btn primary" id="saveTask">Save task</button><button class="btn" id="cancelEdit">Cancel</button></div>
         </div>
-      </section>
+        <div class="card span-7"><div class="between"><h2>Editable Tasks</h2><button class="btn warn" id="restoreDefaults">Restore defaults</button></div><div class="task-list" id="taskEditorList"></div></div>
+      </div></section>
 
-      <section class="screen" id="screen-tasks">
-        <div class="grid">
-          <div class="card span-5">
-            <h2>Add / Edit Task</h2>
-            <input id="editId" type="hidden">
-            <label>Task title</label><input id="taskTitle" placeholder="Example: Wipe counters">
-            <div class="grid" style="margin-top:10px">
-              <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Period</label><select id="taskPeriod"><option>Morning</option><option>Midday</option><option>Evening</option><option>Night</option></select></div>
-              <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Target time</label><input id="taskTime" type="time"></div>
-              <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Category</label><select id="taskCategory"><option>Hygiene</option><option>Food</option><option>House</option><option>Family</option><option>Dog</option><option>Projects</option><option>Faith</option><option>Health</option></select></div>
-              <div class="card span-6" style="box-shadow:none;padding:0;border:0;background:transparent"><label>Priority</label><select id="taskPriority"><option>Required</option><option>Should</option><option>Nice</option></select></div>
-            </div>
-            <label style="margin-top:10px">Subtasks, one per line</label><textarea id="taskSubtasks" placeholder="Optional small steps"></textarea>
-            <div class="row" style="margin-top:10px"><button class="btn primary" id="saveTask">Save task</button><button class="btn" id="cancelEdit">Cancel</button></div>
-          </div>
-          <div class="card span-7">
-            <div class="between"><h2>Editable Default Tasks</h2><button class="btn warn" id="restoreDefaults">Restore defaults</button></div>
-            <div class="task-list" id="taskEditorList"></div>
-          </div>
-        </div>
-      </section>
+      <section class="screen" id="screen-plan"><div class="grid">
+        <div class="card span-6"><h2>Templates</h2><p class="muted small">Templates change which tasks matter without destroying your data.</p><div class="task-list" id="templateList"></div></div>
+        <div class="card span-6"><h2>Family Rhythm Quick Log</h2><label>Quick family note</label><textarea id="familyNote" placeholder="Example: Nap was 1.5 hours. Lunch included Cheerios, yogurt, string cheese, and milk."></textarea><button class="btn primary" id="saveFamilyNote" style="margin-top:8px">Save note</button><h2 style="margin-top:18px">Reset the House</h2><div class="actions"><button class="btn" data-house="Kitchen survival reset">Kitchen survival reset</button><button class="btn" data-house="Laundry moved forward">Laundry moved forward</button><button class="btn" data-house="Trash handled">Trash handled</button><button class="btn" data-house="Tomorrow set up">Tomorrow set up</button></div></div>
+      </div></section>
 
-      <section class="screen" id="screen-plan">
-        <div class="grid">
-          <div class="card span-6">
-            <h2>Templates</h2>
-            <p class="muted small">Templates change which tasks matter without destroying your data.</p>
-            <div class="task-list" id="templateList"></div>
-          </div>
-          <div class="card span-6">
-            <h2>Family Rhythm Quick Log</h2>
-            <label>Quick family note</label><textarea id="familyNote" placeholder="Example: Nap was 1.5 hours. Lunch included Cheerios, yogurt, string cheese, and milk."></textarea>
-            <button class="btn primary" id="saveFamilyNote" style="margin-top:8px">Save note</button>
-            <h2 style="margin-top:18px">Reset the House</h2>
-            <div class="actions"><button class="btn" data-house="Kitchen survival reset">Kitchen survival reset</button><button class="btn" data-house="Laundry moved forward">Laundry moved forward</button><button class="btn" data-house="Trash handled">Trash handled</button><button class="btn" data-house="Tomorrow set up">Tomorrow set up</button></div>
-          </div>
-        </div>
-      </section>
+      <section class="screen" id="screen-reports"><div class="grid">
+        <div class="card span-3"><h2>Streak</h2><div class="metric" id="streakMetric">0</div><div class="metric-label">days with at least one required reset</div></div>
+        <div class="card span-3"><h2>Required Done</h2><div class="metric" id="requiredDoneMetric">0</div><div class="metric-label">today</div></div>
+        <div class="card span-3"><h2>Skipped</h2><div class="metric" id="skippedMetric">0</div><div class="metric-label">today</div></div>
+        <div class="card span-3"><h2>Best Category</h2><div class="metric" id="bestCategoryMetric" style="font-size:1.35rem">—</div><div class="metric-label">last 14 days</div></div>
+        <div class="card span-6"><h2>Recent Days</h2><table class="table" id="historyTable"></table></div>
+        <div class="card span-6"><h2>Skip Reasons</h2><div class="task-list" id="skipReasons"></div></div>
+      </div></section>
 
-      <section class="screen" id="screen-reports">
-        <div class="grid">
-          <div class="card span-3"><h2>Streak</h2><div class="metric" id="streakMetric">0</div><div class="metric-label">days with at least one required reset</div></div>
-          <div class="card span-3"><h2>Required Done</h2><div class="metric" id="requiredDoneMetric">0</div><div class="metric-label">today</div></div>
-          <div class="card span-3"><h2>Skipped</h2><div class="metric" id="skippedMetric">0</div><div class="metric-label">today</div></div>
-          <div class="card span-3"><h2>Best Category</h2><div class="metric" id="bestCategoryMetric" style="font-size:1.35rem">—</div><div class="metric-label">last 14 days</div></div>
-          <div class="card span-6"><h2>Recent Days</h2><table class="table" id="historyTable"></table></div>
-          <div class="card span-6"><h2>Skip Reasons</h2><div class="task-list" id="skipReasons"></div></div>
-        </div>
-      </section>
+      <section class="screen" id="screen-settings"><div class="grid">
+        <div class="card span-6"><h2>Settings</h2><label>App name</label><input id="settingAppName" placeholder="Daily Reset"><label style="margin-top:10px">Theme color</label><select id="settingThemeColor"><option value="#0076B6">Daily Reset Blue</option><option value="#005F94">Deep Blue</option><option value="#2E7D5B">Green</option><option value="#7B5BB7">Lavender</option><option value="#B7791F">Gold</option></select><label style="margin-top:10px">Daily rollover time</label><input id="settingRollover" type="time"><label style="margin-top:10px">Splash screen</label><select id="settingSplash"><option value="on">On — 2 seconds</option><option value="off">Off</option></select><div class="row" style="margin-top:12px"><button class="btn primary" id="saveSettings">Save settings</button><button class="btn" id="previewSplash">Preview splash</button></div></div>
+        <div class="card span-6"><h2>Task Display</h2><label>Completed tasks</label><select id="settingCompleted"><option value="show">Show completed tasks</option><option value="hide">Hide completed tasks</option></select><label style="margin-top:10px">Default opening screen</label><select id="settingStartTab"><option value="today">Today</option><option value="tasks">Tasks</option><option value="plan">Plan</option><option value="reports">Reports</option><option value="backup">Backup</option></select><h2 style="margin-top:18px">Reset Tools</h2><div class="row"><button class="btn warn" id="resetToday">Reset today only</button><button class="btn" id="markRequiredDone">Mark required done</button></div><p class="small muted">These are emergency tools for messy days, not the normal workflow.</p></div>
+        <div class="card"><h2>Current Build</h2><p><span class="kbd">The Daily Reset v6.4 Recurring Tasks</span></p><p class="muted small">Adds daily, weekly, monthly, and yearly tasks, Friday meal planning, monthly hard-deadline snooze rules, and birthday-card reminders.</p></div>
+      </div></section>
 
-
-      <section class="screen" id="screen-settings">
-        <div class="grid">
-          <div class="card span-6">
-            <h2>Settings</h2>
-            <label>App name</label>
-            <input id="settingAppName" placeholder="Daily Reset">
-
-            <label style="margin-top:10px">Theme color</label>
-            <select id="settingThemeColor">
-              <option value="#0076B6">Daily Reset Blue</option>
-              <option value="#005F94">Deep Blue</option>
-              <option value="#2E7D5B">Green</option>
-              <option value="#7B5BB7">Lavender</option>
-              <option value="#B7791F">Gold</option>
-            </select>
-
-            <label style="margin-top:10px">Daily rollover time</label>
-            <input id="settingRollover" type="time">
-
-            <label style="margin-top:10px">Splash screen</label>
-            <select id="settingSplash">
-              <option value="on">On — 2 seconds</option>
-              <option value="off">Off</option>
-            </select>
-
-            <div class="row" style="margin-top:12px">
-              <button class="btn primary" id="saveSettings">Save settings</button>
-              <button class="btn" id="previewSplash">Preview splash</button>
-            </div>
-          </div>
-
-          <div class="card span-6">
-            <h2>Task Display</h2>
-            <label>Completed tasks</label>
-            <select id="settingCompleted">
-              <option value="show">Show completed tasks</option>
-              <option value="hide">Hide completed tasks</option>
-            </select>
-
-            <label style="margin-top:10px">Default opening screen</label>
-            <select id="settingStartTab">
-              <option value="today">Today</option>
-              <option value="tasks">Tasks</option>
-              <option value="plan">Plan</option>
-              <option value="reports">Reports</option>
-              <option value="backup">Backup</option>
-            </select>
-
-            <h2 style="margin-top:18px">Reset Tools</h2>
-            <div class="row">
-              <button class="btn warn" id="resetToday">Reset today only</button>
-              <button class="btn" id="markRequiredDone">Mark required done</button>
-            </div>
-            <p class="small muted">These are emergency tools for messy days, not the normal workflow.</p>
-          </div>
-
-          <div class="card">
-            <h2>Current Build</h2>
-            <p><span class="kbd">The Daily Reset v6.3 Settings</span></p>
-            <p class="muted small">Adds a working settings screen, gear-button navigation, splash toggle, theme options, completed-task hiding, daily rollover preference, and quick reset tools.</p>
-          </div>
-        </div>
-      </section>
-
-
-      <section class="screen" id="screen-backup">
-        <div class="grid">
-          <div class="card span-6">
-            <h2>Backup & Restore</h2>
-            <p class="muted small">This app stores data locally in this browser. Download backups before clearing browser data or changing phones.</p>
-            <div class="row"><button class="btn primary" id="exportJson">Download JSON backup</button><label class="btn" style="display:inline-flex;align-items:center;gap:8px">Restore JSON<input id="importJson" class="hidden" type="file" accept="application/json,.json"></label></div>
-            <div class="row" style="margin-top:10px"><button class="btn" id="exportCsv">Download CSV report</button><button class="btn" id="exportMarkdown">Copy Second Brain markdown</button></div>
-          </div>
-          <div class="card span-6">
-            <h2>About This Build</h2>
-            <p><span class="kbd">The Daily Reset v6.3 Settings</span></p>
-            <p class="muted small">Single-file local-first HTML app. Compact header, reset-sunrise logo, 2-second splash screen, and working settings page.</p>
-            <button class="btn danger" id="clearAll">Clear local data</button>
-          </div>
-        </div>
-      </section>
+      <section class="screen" id="screen-backup"><div class="grid">
+        <div class="card span-6"><h2>Backup & Restore</h2><p class="muted small">This app stores data locally in this browser. Download backups before clearing browser data or changing phones.</p><div class="row"><button class="btn primary" id="exportJson">Download JSON backup</button><label class="btn" style="display:inline-flex;align-items:center;gap:8px">Restore JSON<input id="importJson" class="hidden" type="file" accept="application/json,.json"></label></div><div class="row" style="margin-top:10px"><button class="btn" id="exportCsv">Download CSV report</button><button class="btn" id="exportMarkdown">Copy Second Brain markdown</button></div></div>
+        <div class="card span-6"><h2>About This Build</h2><p><span class="kbd">The Daily Reset v6.4 Recurring Tasks</span></p><p class="muted small">Single-file local-first HTML app. Recurring tasks remain local and are preserved in backup/restore.</p><button class="btn danger" id="clearAll">Clear local data</button></div>
+      </div></section>
     </main>
   </div>
   <div class="toast" id="toast"></div>
 
 <script>
-const KEY='daily_reset_v6_2_logo_splash';
+const KEY='daily_reset_v6_4_recurring';
+const OLD_KEYS=['daily_reset_v6_2_logo_splash','daily_reset_v6_1_stable_restore'];
 const modes={Normal:'Full routine day.',Survival:'Only required essentials count heavily. No shame mode.',Travel:'Keep portable tasks and notes.',Sick:'Reduce the day to care, food, and hygiene.',Workday:'Prioritize time blocks and fast resets.'};
-const periods=['Morning','Midday','Evening','Night'];
+const periods=['Morning','Midday','Afternoon','Evening','Night'];
+const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const defaultBirthdayPeople=[
+ ['emmaline','Emmaline',0,17],['cody','Cody',1,12],['nicole','Nicole',1,22],['mom','Mom',2,17],['harlan','Harlan',4,7],['everly','Everly',4,16],['theresa','Theresa',5,1],['lynn_stiles','Lynn Stiles',6,7],['nathaniel_martinez','Nathaniel Martinez',6,7],['bill','Bill',6,30],['kevin','Kevin',7,28],['dad','Dad',8,13],['hailey','Hailey',8,26],['meghan','Meghan',10,21],['jim','Jim',10,24],['josie','Josie',11,29]
+];
+function tDaily(id,title,period,time,category,priority,subtasks=[]){return {id,title,period,time,category,priority,subtasks,recurrence:'daily'}}
 const defaults=[
-{id:'brush_morning',title:'Brush teeth',period:'Morning',time:'07:30',category:'Hygiene',priority:'Required',subtasks:['Toothbrush','Rinse sink']},
-{id:'breakfast',title:'Breakfast / first food',period:'Morning',time:'08:00',category:'Food',priority:'Required',subtasks:['Eat something real','Log coffee/water if useful']},
-{id:'dog_walk',title:'Walk the dog',period:'Morning',time:'09:00',category:'Dog',priority:'Required',subtasks:['Leash','Bags','Water if needed']},
-{id:'morning_kitchen',title:'Morning kitchen reset',period:'Morning',time:'09:30',category:'House',priority:'Should',subtasks:['Clear sink enough to function','Wipe one counter']},
-{id:'brush_midday',title:'Brush teeth',period:'Midday',time:'12:45',category:'Hygiene',priority:'Required',subtasks:['After lunch if possible']},
-{id:'lunch',title:'Lunch / second food',period:'Midday',time:'12:15',category:'Food',priority:'Required',subtasks:['Feed yourself','Note child food/milk if helpful']},
-{id:'midday_pickup',title:'10-minute house pickup',period:'Midday',time:'14:00',category:'House',priority:'Should',subtasks:['One visible surface','One floor hazard']},
-{id:'project_check',title:'Check one active project',period:'Midday',time:'15:00',category:'Projects',priority:'Nice',subtasks:['Daily Reset, pantry, garden, content, or tracker']},
-{id:'dinner',title:'Dinner / third food',period:'Evening',time:'18:00',category:'Food',priority:'Required',subtasks:['Eat','Save useful leftovers']},
-{id:'evening_kitchen',title:'Kitchen close-down',period:'Evening',time:'19:30',category:'House',priority:'Should',subtasks:['Food put away','Sink improved','Counter usable']},
-{id:'family_reset',title:'Family reset',period:'Evening',time:'20:00',category:'Family',priority:'Should',subtasks:['Family note','Prep one thing for tomorrow']},
-{id:'brush_night',title:'Brush teeth',period:'Night',time:'21:30',category:'Hygiene',priority:'Required',subtasks:['Night brush','Set up morning if possible']},
-{id:'night_close',title:'Night close',period:'Night',time:'22:00',category:'Faith',priority:'Nice',subtasks:['Prayer/reflection','Tomorrow headline']}
+ tDaily('brush_morning','Brush teeth','Morning','07:30','Hygiene','Required',['Toothbrush','Rinse sink']),
+ tDaily('breakfast','Breakfast / first food','Morning','08:00','Food','Required',['Eat something real','Log coffee/water if useful']),
+ tDaily('dog_walk','Walk the dog','Morning','09:00','Dog','Required',['Leash','Bags','Water if needed']),
+ tDaily('morning_kitchen','Morning kitchen reset','Morning','09:30','House','Should',['Clear sink enough to function','Wipe one counter']),
+ tDaily('brush_midday','Brush teeth','Midday','12:45','Hygiene','Required',['After lunch if possible']),
+ tDaily('lunch','Lunch / second food','Midday','12:15','Food','Required',['Feed yourself','Note child food/milk if helpful']),
+ tDaily('midday_pickup','10-minute house pickup','Midday','14:00','House','Should',['One visible surface','One floor hazard']),
+ tDaily('project_check','Check one active project','Midday','15:00','Projects','Nice',['Daily Reset, pantry, garden, content, or tracker']),
+ tDaily('dinner','Dinner / third food','Evening','18:00','Food','Required',['Eat','Save useful leftovers']),
+ tDaily('evening_kitchen','Kitchen close-down','Evening','19:30','House','Should',['Food put away','Sink improved','Counter usable']),
+ tDaily('family_reset','Family reset','Evening','20:00','Family','Should',['Family note','Prep one thing for tomorrow']),
+ tDaily('brush_night','Brush teeth','Night','21:30','Hygiene','Required',['Night brush','Set up morning if possible']),
+ tDaily('night_close','Night close','Night','22:00','Faith','Nice',['Prayer/reflection','Tomorrow headline']),
+ {id:'weekly_meal_planning_friday',title:'Meal planning',period:'Afternoon',time:'15:00',category:'Food',priority:'Should',subtasks:['Review next week','Check pantry/freezer','Build grocery list'],recurrence:'weekly',daysOfWeek:[5]},
+ {id:'monthly_pay_rent',title:'Pay rent',period:'Morning',time:'09:00',category:'Money',priority:'Required',subtasks:['Confirm amount','Submit payment','Save confirmation'],recurrence:'monthly',dayOfMonth:1,allowSnooze:true,snoozeUntilDayOfMonth:5,hardDeadlineDayOfMonth:5,requireExceptionAfterDeadline:true},
+ ...defaultBirthdayPeople.map(([key,name,month,day])=>({id:`birthday_${key}_${String(month+1).padStart(2,'0')}_${String(day).padStart(2,'0')}`,title:`Send birthday card to ${name}`,person:name,period:'Morning',time:'09:30',category:'Birthdays',priority:'Should',subtasks:['Buy or choose card','Write message','Mail or deliver'],recurrence:'yearly',eventLabel:'Birthday',month,dayOfYearMonth:day,reminderDaysBefore:7}))
 ];
 const templates={
-  'Normal Day':['brush_morning','breakfast','dog_walk','morning_kitchen','brush_midday','lunch','midday_pickup','project_check','dinner','evening_kitchen','family_reset','brush_night','night_close'],
-  'Survival Day':['brush_morning','breakfast','dog_walk','lunch','dinner','brush_night'],
-  'House Reset Day':['brush_morning','breakfast','dog_walk','morning_kitchen','lunch','midday_pickup','dinner','evening_kitchen','family_reset','brush_night'],
-  'Project Day':['brush_morning','breakfast','dog_walk','brush_midday','lunch','project_check','dinner','brush_night','night_close']
+ 'Normal Day':['brush_morning','breakfast','dog_walk','morning_kitchen','brush_midday','lunch','midday_pickup','project_check','dinner','evening_kitchen','family_reset','brush_night','night_close','weekly_meal_planning_friday','monthly_pay_rent'],
+ 'Survival Day':['brush_morning','breakfast','dog_walk','lunch','dinner','brush_night','monthly_pay_rent'],
+ 'House Reset Day':['brush_morning','breakfast','dog_walk','morning_kitchen','lunch','midday_pickup','dinner','evening_kitchen','family_reset','brush_night','weekly_meal_planning_friday','monthly_pay_rent'],
+ 'Project Day':['brush_morning','breakfast','dog_walk','brush_midday','lunch','project_check','dinner','brush_night','night_close','weekly_meal_planning_friday','monthly_pay_rent']
 };
 let state=load();let activePeriod='All';
 function today(){return new Date().toISOString().slice(0,10)}
 function nowHM(){return new Date().toTimeString().slice(0,5)}
 function uid(){return 'id_'+Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function clone(v){return JSON.parse(JSON.stringify(v))}
-function load(){try{return migrate(JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('daily_reset_v6_1_stable_restore')||'{}'))}catch(e){return migrate({})}}
-function migrate(raw){return {
-  version:'6.3-settings',
-  tasks:raw.tasks?.length?raw.tasks:clone(defaults),
-  days:raw.days||{},
-  notes:raw.notes||[],
-  template:raw.template||'Normal Day',
-  settings:{
-    appName:raw.settings?.appName||'Daily Reset',
-    themeColor:raw.settings?.themeColor||'#0076B6',
-    rollover:raw.settings?.rollover||'00:00',
-    splash:raw.settings?.splash||'on',
-    completed:raw.settings?.completed||'show',
-    startTab:raw.settings?.startTab||'today'
-  }
-}}
-function save(msg){localStorage.setItem(KEY,JSON.stringify(state));render(); if(msg)toast(msg)}
-function day(date=selectedDate()){state.days[date] ||= {mode:'Normal',briefing:'',items:{}};return state.days[date]}
+function localDate(iso){const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d)}
+function isoFromDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function addDays(iso,n){const d=localDate(iso);d.setDate(d.getDate()+n);return isoFromDate(d)}
+function lastDayOfMonth(y,m){return new Date(y,m+1,0).getDate()}
+function load(){for(const key of [KEY,...OLD_KEYS]){try{const raw=localStorage.getItem(key);if(raw)return migrate(JSON.parse(raw))}catch(e){}}return migrate({})}
+function migrate(raw){
+  let tasks=(raw.tasks?.length?raw.tasks:clone(defaults)).map(t=>({recurrence:'daily',...t}));
+  const existing=new Set(tasks.map(t=>t.id));
+  defaults.forEach(t=>{if(!existing.has(t.id))tasks.push(clone(t))});
+  return {version:'6.4-recurring',tasks,days:raw.days||{},notes:raw.notes||[],template:raw.template||'Normal Day',recurringCompletions:raw.recurringCompletions||{},snoozes:raw.snoozes||{},settings:{appName:raw.settings?.appName||'Daily Reset',themeColor:raw.settings?.themeColor||'#0076B6',rollover:raw.settings?.rollover||'00:00',splash:raw.settings?.splash||'on',completed:raw.settings?.completed||'show',startTab:raw.settings?.startTab||'today'}}
+}
+function save(msg){localStorage.setItem(KEY,JSON.stringify(state));render();if(msg)toast(msg)}
+function day(date=selectedDate()){state.days[date]||={mode:'Normal',briefing:'',items:{}};return state.days[date]}
 function selectedDate(){return document.getElementById('datePick').value||today()}
-function itemStatus(id,date=selectedDate()){return day(date).items[id]||{status:'open'}}
-function setStatus(id,status){const d=day();d.items[id]={...(d.items[id]||{}),status,at:new Date().toISOString()}; if(status==='skipped'){const reason=prompt('Why skip this one today?','Ran out of time')||'Skipped';d.items[id].reason=reason;} save(status==='done'?'Done.':'Saved.');}
+function cycleKey(t,date=selectedDate()){const d=localDate(date);if(t.recurrence==='monthly')return `${t.id}:${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(t.recurrence==='yearly'){const ev=yearlyEventDate(t,date);return `${t.id}:${ev.getFullYear()}`}return null}
+function itemStatus(id,date=selectedDate()){const t=state.tasks.find(x=>x.id===id);const ck=t?cycleKey(t,date):null;if(ck&&state.recurringCompletions[ck])return state.recurringCompletions[ck];return day(date).items[id]||{status:'open'}}
+function setStatus(id,status){const t=state.tasks.find(x=>x.id===id);const d=day();const ck=t?cycleKey(t):null;const payload={status,at:new Date().toISOString()};if(status==='skipped'){payload.reason=prompt('Why skip this one?','Ran out of time')||'Skipped';if(t?.requireExceptionAfterDeadline)payload.exception=true}if(ck){state.recurringCompletions[ck]=payload}else{d.items[id]={...(d.items[id]||{}),...payload}}save(status==='done'?'Done.':'Saved.')}
+function snoozeTask(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;const date=selectedDate();const ck=cycleKey(t,date);const tomorrow=addDays(date,1);state.snoozes[ck]={until:tomorrow,at:new Date().toISOString()};save(`Snoozed until ${tomorrow}.`)}
 function scoreFor(t,st,mode){if(st.status==='done')return t.priority==='Required'?3:t.priority==='Should'?2:1;if(st.status==='skipped')return mode==='Survival'?0:-1;return 0}
-function visibleTasks(){
-  const ids=templates[state.template]||templates['Normal Day'];
-  const defaultIds=new Set(defaults.map(t=>t.id));
-  let rows=state.tasks.filter(t=>ids.includes(t.id)||!defaultIds.has(t.id));
-  if(state.settings?.completed==='hide'){
-    const date=selectedDate();
-    rows=rows.filter(t=>itemStatus(t.id,date).status!=='done');
-  }
-  return rows;
+function monthlyDueWindow(t,date){const d=localDate(date),dayNum=d.getDate(),due=t.dayOfMonth==='last'?lastDayOfMonth(d.getFullYear(),d.getMonth()):Number(t.dayOfMonth||1);const hard=t.hardDeadlineDayOfMonth?Math.min(Number(t.hardDeadlineDayOfMonth),lastDayOfMonth(d.getFullYear(),d.getMonth())):due;return {due,hard,inWindow:dayNum>=due&&dayNum<=hard,final:dayNum===hard,overdue:dayNum>hard}}
+function yearlyEventDate(t,date){const ref=localDate(date);let y=ref.getFullYear(),m=Number(t.month||0),day=Math.min(Number(t.dayOfYearMonth||1),lastDayOfMonth(y,m));let ev=new Date(y,m,day);let start=new Date(ev);start.setDate(start.getDate()-Number(t.reminderDaysBefore||0));if(ref>ev){y++;day=Math.min(Number(t.dayOfYearMonth||1),lastDayOfMonth(y,m));ev=new Date(y,m,day);start=new Date(ev);start.setDate(start.getDate()-Number(t.reminderDaysBefore||0))}return ev}
+function recurrenceMeta(t,date=selectedDate()){if((t.recurrence||'daily')==='daily')return {label:'Daily'};if(t.recurrence==='weekly')return {label:'Weekly on '+(months[0]&&['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][(t.daysOfWeek||[0])[0]])};if(t.recurrence==='monthly'){const w=monthlyDueWindow(t,date);return {label:`Monthly on ${t.dayOfMonth==='last'?'last day':ordinal(w.due)}`,final:w.final,window:w}}if(t.recurrence==='yearly')return {label:`Yearly on ${months[t.month||0]} ${t.dayOfYearMonth}${t.reminderDaysBefore?`, starts ${t.reminderDaysBefore} days before`:''}`};return {label:'Daily'}}
+function isTaskDueOn(t,date=selectedDate()){
+  const rec=t.recurrence||'daily';if(rec==='daily')return true;
+  const d=localDate(date),st=itemStatus(t.id,date);if(st.status==='done')return state.settings?.completed!=='hide';
+  if(rec==='weekly')return (t.daysOfWeek||[]).includes(d.getDay());
+  if(rec==='monthly'){const w=monthlyDueWindow(t,date);if(!w.inWindow)return false;const sn=state.snoozes[cycleKey(t,date)];if(sn&&date<sn.until)return false;return true}
+  if(rec==='yearly'){const ev=yearlyEventDate(t,date);const start=new Date(ev);start.setDate(start.getDate()-Number(t.reminderDaysBefore||0));return d>=start&&d<=ev}
+  return true
 }
+function visibleTasks(){const ids=templates[state.template]||templates['Normal Day'];const defaultIds=new Set(defaults.map(t=>t.id));let rows=state.tasks.filter(t=>(ids.includes(t.id)||!defaultIds.has(t.id))&&isTaskDueOn(t));if(state.settings?.completed==='hide'){const date=selectedDate();rows=rows.filter(t=>itemStatus(t.id,date).status!=='done')}return rows}
 function periodTasks(period=activePeriod){let rows=visibleTasks();if(period!=='All')rows=rows.filter(t=>t.period===period);return rows.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'))}
-function statusBadge(t,st){if(st.status==='done')return '<span class="badge done">Done</span>'; if(st.status==='skipped')return '<span class="badge skip">Skipped</span>'; const n=nowHM(); if(t.time&&t.time<n)return '<span class="badge overdue">Due</span>'; return '<span class="badge">Open</span>'}
-function taskCard(t,editable=false){const st=itemStatus(t.id);const subs=(t.subtasks||[]).map(x=>`<span class="badge">${esc(x)}</span>`).join(' ');return `<div class="task ${st.status==='done'?'done':''} ${st.status==='skipped'?'skipped':''}"><div class="task-head"><div><div class="task-title">${esc(t.title)}</div><div class="row small muted"><span>${t.period}</span><span>•</span><span>${t.time||'Anytime'}</span><span>•</span><span>${t.category}</span></div></div><div class="row"><span class="badge ${t.priority==='Required'?'req':''}">${t.priority}</span>${!editable?statusBadge(t,st):''}</div></div>${subs?`<div class="row">${subs}</div>`:''}${st.reason?`<div class="small muted"><strong>Skip reason:</strong> ${esc(st.reason)}</div>`:''}<div class="actions">${editable?`<button class="btn" onclick="editTask('${t.id}')">Edit</button><button class="btn danger" onclick="deleteTask('${t.id}')">Delete</button>`:`<button class="btn good" onclick="setStatus('${t.id}','done')">Done</button><button class="btn warn" onclick="setStatus('${t.id}','skipped')">Skip</button><button class="btn" onclick="setStatus('${t.id}','open')">Reset</button>`}</div></div>`}
-function render(){applySettingsToUi();const date=selectedDate();const d=day(date);document.getElementById('briefing').value=d.briefing||'';renderModes(d);renderPeriods();const rows=visibleTasks();const stats=rows.reduce((a,t)=>{const st=itemStatus(t.id,date);a.total++;if(st.status==='done')a.done++;if(st.status==='skipped')a.skipped++;if(t.priority==='Required'){a.required++;if(st.status==='done')a.requiredDone++;if(st.status!=='done')a.requiredLeft++;}a.score+=scoreFor(t,st,d.mode);return a},{total:0,done:0,skipped:0,required:0,requiredDone:0,requiredLeft:0,score:0});document.getElementById('scoreMetric').textContent=stats.score;document.getElementById('doneCount').textContent=`${stats.done} done`;document.getElementById('requiredCount').textContent=`${stats.requiredLeft} required left`;document.getElementById('progressBar').style.width=(stats.total?Math.round(stats.done/stats.total*100):0)+'%';document.getElementById('requiredDoneMetric').textContent=`${stats.requiredDone}/${stats.required}`;document.getElementById('skippedMetric').textContent=stats.skipped;const due=rows.filter(t=>itemStatus(t.id,date).status==='open' && (!t.time || t.time<=addMinutes(nowHM(),90))).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).slice(0,6);document.getElementById('dueNow').innerHTML=due.map(t=>taskCard(t)).join('')||'<div class="empty">Nothing urgent right now.</div>';document.getElementById('allTasks').innerHTML=periodTasks().map(t=>taskCard(t)).join('')||'<div class="empty">No tasks in this view.</div>';document.getElementById('taskEditorList').innerHTML=state.tasks.sort((a,b)=>periods.indexOf(a.period)-periods.indexOf(b.period)||(a.time||'').localeCompare(b.time||'')).map(t=>taskCard(t,true)).join('');renderTemplates();renderReports();}
-function renderModes(d){document.getElementById('modePills').innerHTML=Object.keys(modes).map(m=>`<button class="pill ${d.mode===m?'active':''}" onclick="day().mode='${m}';save('Mode set to ${m}.')">${m}</button>`).join('');document.getElementById('modeHelp').textContent=modes[d.mode]}
-function renderPeriods(){document.getElementById('periodPills').innerHTML=['All',...periods].map(p=>`<button class="pill ${activePeriod===p?'active':''}" onclick="activePeriod='${p}';render()">${p}</button>`).join('')}
-function renderTemplates(){document.getElementById('templateList').innerHTML=Object.keys(templates).map(name=>`<div class="task"><div class="task-head"><div><div class="task-title">${name}</div><div class="small muted">${templates[name].length} tasks</div></div><span class="badge ${state.template===name?'done':''}">${state.template===name?'Active':'Template'}</span></div><button class="btn primary" onclick="state.template='${name}'; if(name.includes('Survival')) day().mode='Survival'; save('Template applied.')">Use template</button></div>`).join('')}
-function renderReports(){document.getElementById('streakMetric').textContent=streak();const days=Object.keys(state.days).sort().reverse().slice(0,14);document.getElementById('historyTable').innerHTML='<tr><th>Date</th><th>Mode</th><th>Done</th><th>Score</th></tr>'+days.map(date=>{const d=state.days[date];let done=0,score=0;visibleTasks().forEach(t=>{const st=(d.items||{})[t.id]||{status:'open'};if(st.status==='done')done++;score+=scoreFor(t,st,d.mode||'Normal')});return `<tr><td>${date}</td><td>${d.mode||'Normal'}</td><td>${done}</td><td>${score}</td></tr>`}).join('');const reasons=[];Object.values(state.days).forEach(d=>Object.values(d.items||{}).forEach(x=>{if(x.status==='skipped')reasons.push(x.reason||'Skipped')}));document.getElementById('skipReasons').innerHTML=reasons.slice(-12).reverse().map(r=>`<div class="task"><div class="task-title">${esc(r)}</div></div>`).join('')||'<div class="empty">No skip reasons logged yet.</div>';const cats={};Object.entries(state.days).slice(-14).forEach(([date,d])=>state.tasks.forEach(t=>{const st=(d.items||{})[t.id];if(st?.status==='done')cats[t.category]=(cats[t.category]||0)+1}));document.getElementById('bestCategoryMetric').textContent=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—'}
-function streak(){let n=0;let d=new Date(today());while(true){let iso=d.toISOString().slice(0,10),row=state.days[iso];if(!row)break;let ok=state.tasks.some(t=>t.priority==='Required'&&row.items?.[t.id]?.status==='done');if(!ok)break;n++;d.setDate(d.getDate()-1)}return n}
-function editTask(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;editId.value=t.id;taskTitle.value=t.title;taskPeriod.value=t.period;taskTime.value=t.time||'';taskCategory.value=t.category;taskPriority.value=t.priority;taskSubtasks.value=(t.subtasks||[]).join('\n');document.querySelector('[data-tab="tasks"]').click();taskTitle.focus()}
-function deleteTask(id){if(confirm('Delete this task from the routine?')){state.tasks=state.tasks.filter(t=>t.id!==id);Object.values(state.days).forEach(d=>delete d.items[id]);save('Task deleted.')}}
-function clearForm(){editId.value='';taskTitle.value='';taskPeriod.value='Morning';taskTime.value='';taskCategory.value='House';taskPriority.value='Should';taskSubtasks.value=''}
+function statusBadge(t,st){const meta=recurrenceMeta(t);if(st.status==='done')return '<span class="badge done">Done</span>';if(st.status==='skipped')return '<span class="badge skip">Skipped</span>';if(meta.final)return '<span class="badge final">Final day</span>';const n=nowHM();if((t.recurrence||'daily')==='monthly')return '<span class="badge overdue">Due</span>';if(t.time&&t.time<n)return '<span class="badge overdue">Due</span>';return '<span class="badge">Open</span>'}
+function canSnooze(t){if(t.recurrence!=='monthly'||!t.allowSnooze)return false;const w=monthlyDueWindow(t,selectedDate());return w.inWindow&&!w.final&&itemStatus(t.id).status!=='done'}
+function taskCard(t,editable=false){const st=itemStatus(t.id);const meta=recurrenceMeta(t);const subs=(t.subtasks||[]).map(x=>`<span class="badge">${esc(x)}</span>`).join(' ');return `<div class="task ${st.status==='done'?'done':''} ${st.status==='skipped'?'skipped':''} ${meta.final?'final':''}"><div class="task-head"><div><div class="task-title">${esc(t.title)}</div><div class="row small muted"><span>${esc(t.period)}</span><span>•</span><span>${t.time||'Anytime'}</span><span>•</span><span>${esc(t.category)}</span><span>•</span><span>${esc(meta.label)}</span></div></div><div class="row"><span class="badge ${t.priority==='Required'?'req':''}">${esc(t.priority)}</span>${!editable?statusBadge(t,st):''}</div></div>${subs?`<div class="row">${subs}</div>`:''}${st.reason?`<div class="small muted"><strong>Reason:</strong> ${esc(st.reason)}</div>`:''}<div class="actions">${editable?`<button class="btn" onclick="editTask('${t.id}')">Edit</button><button class="btn danger" onclick="deleteTask('${t.id}')">Delete</button>`:`<button class="btn good" onclick="setStatus('${t.id}','done')">Done</button>${canSnooze(t)?`<button class="btn warn" onclick="snoozeTask('${t.id}')">Snooze</button>`:''}<button class="btn warn" onclick="setStatus('${t.id}','skipped')">Skip</button><button class="btn" onclick="setStatus('${t.id}','open')">Reset</button>`}</div></div>`}
+function render(){applySettingsToUi();const date=selectedDate();const d=day(date);briefing.value=d.briefing||'';renderModes(d);renderPeriods();const rows=visibleTasks();const stats=rows.reduce((a,t)=>{const st=itemStatus(t.id,date);a.total++;if(st.status==='done')a.done++;if(st.status==='skipped')a.skipped++;if(t.priority==='Required'){a.required++;if(st.status==='done')a.requiredDone++;if(st.status!=='done')a.requiredLeft++;}a.score+=scoreFor(t,st,d.mode);return a},{total:0,done:0,skipped:0,required:0,requiredDone:0,requiredLeft:0,score:0});scoreMetric.textContent=stats.score;doneCount.textContent=`${stats.done} done`;requiredCount.textContent=`${stats.requiredLeft} required left`;progressBar.style.width=(stats.total?Math.round(stats.done/stats.total*100):0)+'%';requiredDoneMetric.textContent=`${stats.requiredDone}/${stats.required}`;skippedMetric.textContent=stats.skipped;const due=rows.filter(t=>itemStatus(t.id,date).status==='open'&&(!t.time||t.time<=addMinutes(nowHM(),90)||(t.recurrence||'daily')!=='daily')).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).slice(0,8);dueNow.innerHTML=due.map(t=>taskCard(t)).join('')||'<div class="empty">Nothing urgent right now.</div>';allTasks.innerHTML=periodTasks().map(t=>taskCard(t)).join('')||'<div class="empty">No tasks in this view.</div>';taskEditorList.innerHTML=state.tasks.slice().sort((a,b)=>periods.indexOf(a.period)-periods.indexOf(b.period)||(a.time||'').localeCompare(b.time||'')).map(t=>taskCard(t,true)).join('');renderTemplates();renderReports();}
+function renderModes(d){modePills.innerHTML=Object.keys(modes).map(m=>`<button class="pill ${d.mode===m?'active':''}" onclick="day().mode='${m}';save('Mode set to ${m}.')">${m}</button>`).join('');modeHelp.textContent=modes[d.mode]}
+function renderPeriods(){periodPills.innerHTML=['All',...periods].map(p=>`<button class="pill ${activePeriod===p?'active':''}" onclick="activePeriod='${p}';render()">${p}</button>`).join('')}
+function renderTemplates(){templateList.innerHTML=Object.keys(templates).map(name=>`<div class="task"><div class="task-head"><div><div class="task-title">${name}</div><div class="small muted">${templates[name].length} core tasks plus any custom tasks</div></div><span class="badge ${state.template===name?'done':''}">${state.template===name?'Active':'Template'}</span></div><button class="btn primary" onclick="state.template='${name}'; if(name.includes('Survival')) day().mode='Survival'; save('Template applied.')">Use template</button></div>`).join('')}
+function renderReports(){streakMetric.textContent=streak();const days=Object.keys(state.days).sort().reverse().slice(0,14);historyTable.innerHTML='<tr><th>Date</th><th>Mode</th><th>Done</th><th>Score</th></tr>'+days.map(date=>{const d=state.days[date];let done=0,score=0;state.tasks.forEach(t=>{const st=(d.items||{})[t.id]||{status:'open'};if(st.status==='done')done++;score+=scoreFor(t,st,d.mode||'Normal')});return `<tr><td>${date}</td><td>${d.mode||'Normal'}</td><td>${done}</td><td>${score}</td></tr>`}).join('');const reasons=[];Object.values(state.days).forEach(d=>Object.values(d.items||{}).forEach(x=>{if(x.status==='skipped')reasons.push(x.reason||'Skipped')}));Object.values(state.recurringCompletions||{}).forEach(x=>{if(x.status==='skipped')reasons.push(x.reason||'Skipped')});skipReasons.innerHTML=reasons.slice(-12).reverse().map(r=>`<div class="task"><div class="task-title">${esc(r)}</div></div>`).join('')||'<div class="empty">No skip reasons logged yet.</div>';const cats={};Object.entries(state.days).slice(-14).forEach(([date,d])=>state.tasks.forEach(t=>{const st=(d.items||{})[t.id];if(st?.status==='done')cats[t.category]=(cats[t.category]||0)+1}));bestCategoryMetric.textContent=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—'}
+function streak(){let n=0,d=new Date(today());while(true){let iso=isoFromDate(d),row=state.days[iso];if(!row)break;let ok=state.tasks.some(t=>t.priority==='Required'&&row.items?.[t.id]?.status==='done');if(!ok)break;n++;d.setDate(d.getDate()-1)}return n}
+function editTask(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;editId.value=t.id;taskTitle.value=t.title;taskPeriod.value=t.period;taskTime.value=t.time||'';taskCategory.value=t.category;taskPriority.value=t.priority;taskRecurrence.value=t.recurrence||'daily';taskWeekday.value=(t.daysOfWeek||[1])[0];taskMonthDay.value=t.dayOfMonth||1;taskHardDeadline.value=t.hardDeadlineDayOfMonth||'';taskYearMonth.value=t.month||0;taskYearDay.value=t.dayOfYearMonth||1;taskReminderDays.value=t.reminderDaysBefore||0;taskSubtasks.value=(t.subtasks||[]).join('\n');switchTab('tasks');taskTitle.focus()}
+function deleteTask(id){if(confirm('Delete this task from the routine?')){state.tasks=state.tasks.filter(t=>t.id!==id);Object.values(state.days).forEach(d=>delete d.items[id]);Object.keys(state.recurringCompletions).forEach(k=>{if(k.startsWith(id+':'))delete state.recurringCompletions[k]});save('Task deleted.')}}
+function clearForm(){editId.value='';taskTitle.value='';taskPeriod.value='Morning';taskTime.value='';taskCategory.value='House';taskPriority.value='Should';taskRecurrence.value='daily';taskWeekday.value='1';taskMonthDay.value='1';taskHardDeadline.value='';taskYearMonth.value='0';taskYearDay.value='1';taskReminderDays.value='0';taskSubtasks.value=''}
 function addMinutes(hm,min){const [h,m]=hm.split(':').map(Number);const d=new Date();d.setHours(h,m+min,0,0);return d.toTimeString().slice(0,5)}
+function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1700)}
+function toast(msg){const t=toastEl;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1700)}
 function download(name,body,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
-function toCsv(){const rows=[['date','mode','task','period','time','category','priority','status','reason']];Object.entries(state.days).forEach(([date,d])=>state.tasks.forEach(t=>{const st=d.items?.[t.id]||{status:'open'};rows.push([date,d.mode||'Normal',t.title,t.period,t.time,t.category,t.priority,st.status,st.reason||''])}));return rows.map(r=>r.map(x=>`"${String(x??'').replace(/"/g,'""')}"`).join(',')).join('\n')}
-function markdown(){const date=selectedDate(),d=day(date);const rows=visibleTasks().map(t=>`- [${itemStatus(t.id,date).status==='done'?'x':' '}] ${t.period}: ${t.title} (${t.priority})`).join('\n');return `# The Daily Reset — ${date}\n\nMode: ${d.mode}\n\nBriefing: ${d.briefing||''}\n\n## Tasks\n${rows}\n`}
-
-function applySettingsToUi(){
-  const s=state.settings||{};
-  document.documentElement.style.setProperty('--blue',s.themeColor||'#0076B6');
-  const appName=s.appName||'Daily Reset';
-  document.title=appName;
-  document.querySelectorAll('.top-title,.splash-title').forEach(el=>el.textContent=appName);
-  if(document.getElementById('settingAppName')){
-    settingAppName.value=appName;
-    settingThemeColor.value=s.themeColor||'#0076B6';
-    settingRollover.value=s.rollover||'00:00';
-    settingSplash.value=s.splash||'on';
-    settingCompleted.value=s.completed||'show';
-    settingStartTab.value=s.startTab||'today';
-  }
-}
-function switchTab(tab){
-  const b=document.querySelector(`[data-tab="${tab}"]`);
-  if(!b)return;
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+tab).classList.add('active');
-}
-function showSplashPreview(){
-  const splash=document.getElementById('splash');
-  splash.classList.remove('hide');
-  setTimeout(()=>splash.classList.add('hide'),2000);
-}
-
+function toCsv(){const rows=[['date','mode','task','recurrence','period','time','category','priority','status','reason']];Object.entries(state.days).forEach(([date,d])=>state.tasks.forEach(t=>{const st=d.items?.[t.id]||{status:'open'};rows.push([date,d.mode||'Normal',t.title,t.recurrence,t.period,t.time,t.category,t.priority,st.status,st.reason||''])}));return rows.map(r=>r.map(x=>`"${String(x??'').replace(/"/g,'""')}"`).join(',')).join('\n')}
+function markdown(){const date=selectedDate(),d=day(date);const rows=visibleTasks().map(t=>`- [${itemStatus(t.id,date).status==='done'?'x':' '}] ${t.period}: ${t.title} (${t.priority}, ${recurrenceMeta(t,date).label})`).join('\n');return `# The Daily Reset — ${date}\n\nMode: ${d.mode}\n\nBriefing: ${d.briefing||''}\n\n## Tasks\n${rows}\n`}
+function applySettingsToUi(){const s=state.settings||{};document.documentElement.style.setProperty('--blue',s.themeColor||'#0076B6');const appName=s.appName||'Daily Reset';document.title=appName;document.querySelectorAll('.top-title,.splash-title').forEach(el=>el.textContent=appName);if(settingAppName){settingAppName.value=appName;settingThemeColor.value=s.themeColor||'#0076B6';settingRollover.value=s.rollover||'00:00';settingSplash.value=s.splash||'on';settingCompleted.value=s.completed||'show';settingStartTab.value=s.startTab||'today'}}
+function switchTab(tab){const b=document.querySelector(`[data-tab="${tab}"]`);if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+tab).classList.add('active')}
+function showSplashPreview(){const splash=document.getElementById('splash');splash.classList.remove('hide');setTimeout(()=>splash.classList.add('hide'),2000)}
+function seedMonthOptions(){taskYearMonth.innerHTML=months.map((m,i)=>`<option value="${i}">${m}</option>`).join('')}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-datePick.value=today();datePick.onchange=render;
+seedMonthOptions();datePick.value=today();datePick.onchange=render;
 saveBriefing.onclick=()=>{day().briefing=briefing.value.trim();save('Briefing saved.')};
 survivalBtn.onclick=()=>{day().mode='Survival';state.template='Survival Day';save('Survival reset activated.')};
-saveTask.onclick=()=>{const id=editId.value||uid();const t={id,title:taskTitle.value.trim()||'Untitled task',period:taskPeriod.value,time:taskTime.value,category:taskCategory.value,priority:taskPriority.value,subtasks:taskSubtasks.value.split('\n').map(x=>x.trim()).filter(Boolean)};const i=state.tasks.findIndex(x=>x.id===id);i>=0?state.tasks[i]=t:state.tasks.push(t);if(!templates[state.template].includes(id))templates[state.template].push(id);clearForm();save('Task saved.')};
+saveTask.onclick=()=>{const id=editId.value||uid();const rec=taskRecurrence.value;const t={id,title:taskTitle.value.trim()||'Untitled task',period:taskPeriod.value,time:taskTime.value,category:taskCategory.value,priority:taskPriority.value,subtasks:taskSubtasks.value.split('\n').map(x=>x.trim()).filter(Boolean),recurrence:rec};if(rec==='weekly')t.daysOfWeek=[Number(taskWeekday.value)];if(rec==='monthly'){t.dayOfMonth=taskMonthDay.value==='last'?'last':Number(taskMonthDay.value);if(taskHardDeadline.value){t.allowSnooze=true;t.snoozeUntilDayOfMonth=Number(taskHardDeadline.value);t.hardDeadlineDayOfMonth=Number(taskHardDeadline.value);t.requireExceptionAfterDeadline=true}}if(rec==='yearly'){t.month=Number(taskYearMonth.value);t.dayOfYearMonth=Number(taskYearDay.value||1);t.reminderDaysBefore=Number(taskReminderDays.value||0);t.eventLabel='Birthday'}const i=state.tasks.findIndex(x=>x.id===id);i>=0?state.tasks[i]=t:state.tasks.push(t);if(!templates[state.template].includes(id))templates[state.template].push(id);clearForm();save('Task saved.')};
 cancelEdit.onclick=clearForm;restoreDefaults.onclick=()=>{if(confirm('Restore the default Daily Reset task list?')){state.tasks=clone(defaults);state.template='Normal Day';save('Defaults restored.')}};
 saveFamilyNote.onclick=()=>{state.notes.unshift({id:uid(),date:selectedDate(),type:'family',body:familyNote.value.trim(),at:new Date().toISOString()});familyNote.value='';save('Family note saved.')};
 document.querySelectorAll('[data-house]').forEach(b=>b.onclick=()=>{state.notes.unshift({id:uid(),date:selectedDate(),type:'house',body:b.dataset.house,at:new Date().toISOString()});save('House note saved.')});
-document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>{if(b.dataset.quick==='note'){familyNote.focus();document.querySelector('[data-tab="plan"]').click()}else{document.querySelector('[data-tab="tasks"]').click();taskTitle.focus()}});
-exportJson.onclick=()=>download(`daily-reset-v6-2-backup-${selectedDate()}.json`,JSON.stringify(state,null,2),'application/json');
+document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>{if(b.dataset.quick==='note'){familyNote.focus();switchTab('plan')}else{switchTab('tasks');taskTitle.focus()}});
+exportJson.onclick=()=>download(`daily-reset-v6-4-backup-${selectedDate()}.json`,JSON.stringify(state,null,2),'application/json');
 exportCsv.onclick=()=>download(`daily-reset-report-${selectedDate()}.csv`,toCsv(),'text/csv');
 exportMarkdown.onclick=async()=>{try{await navigator.clipboard.writeText(markdown());toast('Markdown copied.')}catch(e){download(`daily-reset-${selectedDate()}.md`,markdown(),'text/markdown')}};
 importJson.onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{state=migrate(JSON.parse(r.result));save('Backup restored.')}catch(err){toast('Could not restore that JSON.')}};r.readAsText(file);e.target.value=''};
 clearAll.onclick=()=>{if(confirm('Clear all Daily Reset data on this device? Download a backup first if needed.')){localStorage.removeItem(KEY);state=load();render();toast('Local data cleared.')}};
 openSettings.onclick=()=>switchTab('settings');
-saveSettings.onclick=()=>{
-  state.settings.appName=settingAppName.value.trim()||'Daily Reset';
-  state.settings.themeColor=settingThemeColor.value;
-  state.settings.rollover=settingRollover.value||'00:00';
-  state.settings.splash=settingSplash.value;
-  state.settings.completed=settingCompleted.value;
-  state.settings.startTab=settingStartTab.value;
-  save('Settings saved.');
-};
+saveSettings.onclick=()=>{state.settings.appName=settingAppName.value.trim()||'Daily Reset';state.settings.themeColor=settingThemeColor.value;state.settings.rollover=settingRollover.value||'00:00';state.settings.splash=settingSplash.value;state.settings.completed=settingCompleted.value;state.settings.startTab=settingStartTab.value;save('Settings saved.')};
 previewSplash.onclick=showSplashPreview;
-resetToday.onclick=()=>{
-  if(confirm('Reset all task statuses for today?')){
-    day().items={};
-    save('Today reset.');
-  }
-};
-markRequiredDone.onclick=()=>{
-  visibleTasks().filter(t=>t.priority==='Required').forEach(t=>day().items[t.id]={status:'done',at:new Date().toISOString()});
-  save('Required tasks marked done.');
-};
+resetToday.onclick=()=>{if(confirm('Reset all task statuses for today?')){day().items={};save('Today reset.')}};
+markRequiredDone.onclick=()=>{visibleTasks().filter(t=>t.priority==='Required').forEach(t=>setStatus(t.id,'done'))};
 window.addEventListener('beforeunload',()=>localStorage.setItem(KEY,JSON.stringify(state)));
-window.addEventListener('load',()=>{
-  applySettingsToUi();
-  if(state.settings?.splash==='off'){
-    document.getElementById('splash').classList.add('hide');
-  }else{
-    setTimeout(()=>document.getElementById('splash').classList.add('hide'),2000);
-  }
-  setTimeout(()=>switchTab(state.settings?.startTab||'today'),0);
-});
+window.addEventListener('load',()=>{applySettingsToUi();if(state.settings?.splash==='off'){document.getElementById('splash').classList.add('hide')}else{setTimeout(()=>document.getElementById('splash').classList.add('hide'),2000)}setTimeout(()=>switchTab(state.settings?.startTab||'today'),0)});
+const toastEl=document.getElementById('toast');
 render();
 </script>
-
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
-  });
-}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./service-worker.js').catch(()=>{})})}
 </script>
-
 </body>
 </html>
